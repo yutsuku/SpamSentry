@@ -3,7 +3,7 @@
 --
 --------------------------------------------------------------
 
-local SS_CurrentVersion = 20061122;
+local SS_CurrentVersion = 20160908;
 
 ---------
 -- Blacklist
@@ -188,6 +188,11 @@ function SS_ChatFrame_OnEvent(event)
 					SS_IsSpam(msg, plr, event);
 					didcheck = true;
 				end
+      elseif (channel == SS_WORLD and chn ~= nil) then
+        if (strfind(event, "CHAT_MSG_CHANNEL")  and strfind(chn, SS_WORLD)) then
+          SS_IsSpam(msg, plr, event);
+          didcheck = true;
+        end
       elseif (strfind(event, "CHAT_MSG_SYSTEM")) then
       	if (SS_IgnoreMsgSupress(msg)) then
       		return;
@@ -539,6 +544,7 @@ end
 -- Covers both output to chatwindow and output to GUI
 function SS_RepList()
   local realm = tostring(GetRealmName());
+  local character, message;
   if (SS_ReportList and SS_ReportList[realm] and getn(SS_ReportList[realm])>0) then
     SS_Msg(0, SS_MSGREPLIST);
     for i=1, getn(SS_ReportList[realm]), 1 do
@@ -724,7 +730,7 @@ function SS_ChanList()
 end
 
 function SS_ChannelAdd(channel)
-  local SS_AllowedChannel = {SS_WHISPER, SS_SAY, SS_YELL, SS_TRADE, SS_GENERAL, SS_LFG};
+  local SS_AllowedChannel = {SS_WHISPER, SS_SAY, SS_YELL, SS_TRADE, SS_GENERAL, SS_LFG, SS_WORLD};
   channel = strlower(channel);
   if (SS_InList(SS_AllowedChannel, channel) and not SS_InList(SS_ChannelList, channel)) then
     SS_Msg(0, format(SS_MSGCHANNELADDED, channel));

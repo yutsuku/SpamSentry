@@ -7,6 +7,7 @@ if (loc == "deDE") then
 	SS_TRADE = "trade";
 	SS_GENERAL = "general";
 	SS_LFG = "lookingforgroup";
+	SS_WORLD = "world";
 	
 	-- Short messages
 	SS_MSGWELCOME = "|cffff0000SpamSentry|r|cffff9977 von Anea. Gib |cffffffff/sentry|r |cffff9977ein f\195\188r Optionen. (%s)|r";
@@ -88,6 +89,7 @@ elseif (loc == "frFR") then
 	SS_TRADE = "commerce";
 	SS_GENERAL = "g\195\169n\195\169ral";
 	SS_LFG = "recherchegroupe";
+	SS_WORLD = "world";
 
 	-- Short messages
 	SS_MSGWELCOME = "|cffff0000SpamSentry|r|cffff9977 par Anea. Tapez |cffffffff\sentry|r |cffff9977pour les options. (v. %s)|r";
@@ -169,6 +171,7 @@ else
 	SS_TRADE = "trade";
 	SS_GENERAL = "general";
 	SS_LFG = "lookingforgroup";
+	SS_WORLD = "world";
 	
 	-- Short messages	
 	SS_MSGWELCOME = "|cffff0000SpamSentry|r|cffff9977 by Anea. Type |cffffffff/sentry|r |cffff9977for options. (%s)|r";
@@ -241,7 +244,7 @@ else
 	SS_MSGHELP5 = "|cffff9977* To clear the reportlist, type: |r|cffffffff/sentry clear|r";
 	SS_MSGHELP6 = "|cffff9977* To toggle notification, type: |r|cffffffff/sentry notify hourly|always|off|r";
 	SS_MSGHELP7 = "|cffff9977* To toggle bot-reporting, type: |r|cffffffff/sentry bot|r";
-	SS_MSGHELP8 = "|cffff9977* Use the options |r|cffffffffchannellist|channeladd|channelremove|channelclear|r|cffff9977 to edit the monitored channels. Allowed channelnames are: |r|cffffffffWhisper, Say, Yell, Trade, General, LookingForGroup|r|cffff9977. By default only Whisper, Say, Yell are activated.|r";
+	SS_MSGHELP8 = "|cffff9977* Use the options |r|cffffffffchannellist|channeladd|channelremove|channelclear|r|cffff9977 to edit the monitored channels. Allowed channelnames are: |r|cffffffffWhisper, Say, Yell, Trade, General, LookingForGroup, World|r|cffff9977. By default only Whisper, Say, Yell are activated.|r";
 	SS_MSGHELP9 = "|cffff9977* Right-click a name or playerframe and select 'Report Spam' to manually add this player to the reportlist.|r";
 end
 
