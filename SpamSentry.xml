@@ -1,0 +1,203 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	
+	<!-- This loads the execution file -->
+	<Script file="SpamSentry.lua"/>
+	<Script file="localisation.lua"/>
+
+
+	<Frame name="SpamSentryGUI" toplevel="true" parent="UIParent" frameStrata="DIALOG" hidden="true" enableMouse="true">
+		<Size><AbsDimension x="594" y="512"/></Size>
+		<Anchors><Anchor point="CENTER"/></Anchors>
+
+		<!-- Create dialogframe -->
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11"/>
+			</BackgroundInsets>
+			<TileSize><AbsValue val="32"/></TileSize>
+			<EdgeSize><AbsValue val="32"/></EdgeSize>
+		</Backdrop>
+  		
+  		<!-- Add titlebox -->
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\DialogFrame\UI-DialogBox-Header">
+				<Size><AbsDimension x="256" y="64"/></Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset><AbsDimension x="0" y="12"/></Offset>
+					</Anchor>
+				</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString inherits="GameFontNormal" text="SS_GUITITLE">
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent"></Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		   <Layer level="OVERLAY">
+				<FontString inherits="ChatFontNormal" text="SS_GUIREPORTHELP">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent">
+						  <Offset><AbsDimension x="125" y="-55"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>		
+		</Layers>
+		
+  
+		<Frames>
+			<Frame name="SpamSentry_Divider" inherits="HelpFrameDividerTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="6" y="-72"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<ScrollFrame name="SpamSentry_ScrollFrame" inherits="UIPanelScrollFrameTemplate">
+				<Size>
+					<AbsDimension x="540" y="378"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="SpamSentry_Divider" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="8" y="4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="$parentScrollBarTop" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+							<Size>
+								<AbsDimension x="31" y="256"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+									<Offset>
+										<AbsDimension x="-2" y="5"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.484375" top="0" bottom="1.0"/>
+						</Texture>
+						<Texture name="$parentScrollBarBottom" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+							<Size>
+								<AbsDimension x="31" y="106"/>
+							</Size>
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-2" y="-2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0.515625" right="1.0" top="0" bottom="0.4140625"/>
+						</Texture>
+						<Texture name="$parentScrollBarMiddle" file="Interface\PaperDollInfoFrame\UI-Character-ScrollBar">
+							<Size>
+								<AbsDimension x="31" y="60"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOP" relativeTo="$parentScrollBarTop" relativePoint="BOTTOM">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+								<Anchor point="BOTTOM" relativeTo="$parentScrollBarBottom" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0" right="0.484375" top=".75" bottom="1.0"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<ScrollChild>
+					<EditBox name="SpamSentry_Text" multiLine="true" letters="5000">
+						<Size>
+							<AbsDimension x="541" y="357"/>
+						</Size>
+						<Scripts>
+							<OnTextChanged>
+								ScrollingEdit_OnTextChanged();
+							</OnTextChanged>
+							<OnCursorChanged>
+								ScrollingEdit_OnCursorChanged(arg1, arg2, arg3, arg4);
+							</OnCursorChanged>
+							<OnUpdate>
+								ScrollingEdit_OnUpdate();
+							</OnUpdate>
+							<OnEscapePressed>
+								SpamSentryGUI:Hide();
+							</OnEscapePressed>
+							<OnLoad>
+                        SpamSentry_Text:SetAutoFocus(true);
+                     </OnLoad>
+						</Scripts>
+						<FontString inherits="ChatFontNormal"/>
+					</EditBox>
+				</ScrollChild>
+			</ScrollFrame>
+
+
+	  		<!-- Send button -->
+			<Button name="SpamSentry_ButtonSend" inherits="OptionsButtonTemplate" text="SS_GUISEND">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT">
+						<Offset><AbsDimension x="12" y="16"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick> 
+						SS_OpenTicket(SpamSentry_Text:GetText());
+						SpamSentryGUI:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+
+	  		<!-- Reset button -->
+			<Button name="SpamSentry_ButtonReset" inherits="OptionsButtonTemplate" text="SS_GUIRESET">
+				<Anchors>
+					<Anchor point="BOTTOMLEFT">
+						<Offset><AbsDimension x="106" y="16"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick> SS_ResetReport(); </OnClick>
+				</Scripts>
+			</Button>
+
+	  		<!-- Close button -->
+			<Button name="SpamSentry_ButtonClose" inherits="OptionsButtonTemplate" text="SS_GUICLOSE">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset><AbsDimension x="-12" y="16"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						SpamSentryGUI:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				SS_OnLoad();
+			</OnLoad>
+			<OnEvent>
+				SS_OnEvent(event,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+			</OnEvent>
+		</Scripts>
+	</Frame>	
+</Ui>

@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: SpamSentry
+## Author: Anea
+## Notes: Type /spamsentry or /sentry for options
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## OptionalDeps: WIM
+## SavedVariables: SS_Counter,SS_ChannelList,SS_Notify,SS_ReportList, SS_Version, SS_IgnoreList, SS_EnableBotReport
+SpamSentry.xml
