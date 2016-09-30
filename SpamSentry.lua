@@ -3,7 +3,7 @@
 --
 --------------------------------------------------------------
 
-local SS_CurrentVersion = 20160908;
+local SS_CurrentVersion = 20160924;
 
 ---------
 -- Blacklist
@@ -19,6 +19,7 @@ local SS_BlackList = {
                 "%d+g.+\226\130\172%d+",
                 "\194\163%d+.+%d+g",
                 "%d+g.+\194\163%d+",
+                "%d+G=%d%$",
 
                 "cheap",
                 "visit",
@@ -160,6 +161,10 @@ function SS_ChatFrame_OnEvent(event)
   local plr = arg2;
   local chn = arg4;
   local didcheck = false;
+  
+  if ( event == "CHAT_MSG_CHANNEL" ) then
+    chn = strlower(arg9)
+  end
 
   if (SS_ChannelList and msg and plr) then
     for index,channel in ipairs(SS_ChannelList) do
@@ -332,7 +337,41 @@ function SS_IsSpam(msg, plr, evt)
       tsc = tsc + 0.3;
     end
     if(tsc < 0) then
-      SS_SpammerFound(plr, msg);
+      SS_CallChatEvent(evt);
+      
+      if ( strsub(evt, 1, 8) == "CHAT_MSG" ) then
+        local type = strsub(evt, 10);
+        local info = ChatTypeInfo[type];
+        
+        local channelLength = strlen(arg4);
+        if ( (strsub(type, 1, 7) == "CHANNEL") and (type ~= "CHANNEL_LIST") and ((arg1 ~= "INVITE") or (type ~= "CHANNEL_NOTICE_USER")) ) then
+          local found = 0;
+          for index, value in this.channelList do
+            if ( channelLength > strlen(value) ) then
+              -- arg9 is the channel name without the number in front...
+              if ( ((arg7 > 0) and (this.zoneChannelList[index] == arg7)) or (strupper(value) == strupper(arg9)) ) then
+                found = 1;
+                info = ChatTypeInfo["CHANNEL"..arg8];
+                if ( (type == "CHANNEL_NOTICE") and (arg1 == "YOU_LEFT") ) then
+                  this.channelList[index] = nil;
+                  this.zoneChannelList[index] = nil;
+                end
+                break;
+              end
+            end
+          end
+          if ( (found == 0) or not info ) then
+            return;
+          end
+        end
+        
+        FCF_SelectDockFrame(this);
+        this:ScrollToBottom();
+        TakeScreenshot();
+
+        UIErrorsFrame:AddMessage("[1] " .. this:GetName() .. ": Spammer found: " .. plr, 1.0, 1.0, 0.0, 1.0);
+        SS_SpammerFound(plr, msg);
+      end
     else
       SS_CallChatEvent(evt);
     end
@@ -342,6 +381,36 @@ function SS_IsSpam(msg, plr, evt)
     SS_CallChatEvent(evt);
   -- Send who-query only if we aren't already waiting for results on this player
   elseif (not (SS_Message[plr] and SS_Message[plr].waiting)) then
+    
+    -- copypasta from ChatFrame, don't take any action if message came from
+    -- a channel that isn't active in this chat frame
+    if ( strsub(evt, 1, 8) == "CHAT_MSG" ) then
+      local type = strsub(evt, 10);
+      local info = ChatTypeInfo[type];
+      
+      local channelLength = strlen(arg4);
+      if ( (strsub(type, 1, 7) == "CHANNEL") and (type ~= "CHANNEL_LIST") and ((arg1 ~= "INVITE") or (type ~= "CHANNEL_NOTICE_USER")) ) then
+        local found = 0;
+        for index, value in this.channelList do
+          if ( channelLength > strlen(value) ) then
+            -- arg9 is the channel name without the number in front...
+            if ( ((arg7 > 0) and (this.zoneChannelList[index] == arg7)) or (strupper(value) == strupper(arg9)) ) then
+              found = 1;
+              info = ChatTypeInfo["CHANNEL"..arg8];
+              if ( (type == "CHANNEL_NOTICE") and (arg1 == "YOU_LEFT") ) then
+                this.channelList[index] = nil;
+                this.zoneChannelList[index] = nil;
+              end
+              break;
+            end
+          end
+        end
+        if ( (found == 0) or not info ) then
+          return;
+        end
+      end
+    end
+    
     -- Cache current environment
     SS_Message[plr] = { name = plr,
                         waiting = true,
@@ -365,7 +434,7 @@ function SS_IsSpam(msg, plr, evt)
     SS_LastPlayer = plr;
 
     -- Send the who-stuff
-    FriendsFrame:Hide();
+    --FriendsFrame:Hide();
     SetWhoToUI(1);
     SendWho("n-\""..plr.."\"");
   end
@@ -421,8 +490,60 @@ function SS_IsSpam2(event)
 
   -- Suppress message if score is below 0
   if (score < 0) then
+    SS_CallOldChatEvent(plrname);
+    
+    local this_old = SS_Message[plrname].args[1]
+    local event_old = SS_Message[plrname].args[2]
+    local args = {
+      SS_Message[plrname].args[3],
+      SS_Message[plrname].args[4],
+      SS_Message[plrname].args[5],
+      SS_Message[plrname].args[6],
+      SS_Message[plrname].args[7],
+      SS_Message[plrname].args[8],
+      SS_Message[plrname].args[9],
+      SS_Message[plrname].args[10],
+      SS_Message[plrname].args[11],
+    };
+    
+    
+    -- copypasta from ChatFrame, don't take any action if message came from
+    -- a channel that isn't active in this chat frame
+    if ( strsub(event_old, 1, 8) == "CHAT_MSG" ) then
+      local type = strsub(event_old, 10);
+      local info = ChatTypeInfo[type];
+      
+      local channelLength = strlen(args[4]);
+      if ( (strsub(type, 1, 7) == "CHANNEL") and (type ~= "CHANNEL_LIST") and ((args[1] ~= "INVITE") or (type ~= "CHANNEL_NOTICE_USER")) ) then
+        local found = 0;
+        for index, value in this_old.channelList do
+          if ( channelLength > strlen(value) ) then
+            -- arg9 is the channel name without the number in front...
+            if ( ((args[7] > 0) and (this_old.zoneChannelList[index] == args[7])) or (strupper(value) == strupper(args[9])) ) then
+              found = 1;
+              info = ChatTypeInfo["CHANNEL"..args[8]];
+              if ( (type == "CHANNEL_NOTICE") and (args[1] == "YOU_LEFT") ) then
+                this_old.channelList[index] = nil;
+                this_old.zoneChannelList[index] = nil;
+              end
+              break;
+            end
+          end
+        end
+        if ( (found == 0) or not info ) then
+          return;
+        end
+      end
+    end
+    
+    FCF_SelectDockFrame(this_old);
+    this_old:ScrollToBottom();
+    TakeScreenshot();
+    
+    UIErrorsFrame:AddMessage("[2] " .. SS_Message[plrname].args[1]:GetName() .. ": Spammer found: " .. plrname, 1.0, 1.0, 0.0, 1.0);
     SS_SpammerFound(plrname, SS_Message[plrname].message);
     SS_Message[plrname].waiting=false;
+    
   -- Show message if score is above 0, and we were waiting for a who-query
   elseif (SS_Message and SS_Message[plrname] and SS_Message[plrname].waiting) then
     SS_CallOldChatEvent(plrname);
@@ -454,6 +575,10 @@ function SS_CheckWhoCooldown()
       name = SS_Message[i].name;
       if (SS_Message[i].waiting and (SS_Message[i].time < GetTime() - 0.5) ) then 
         if (SS_Message[i].score < 0) then
+			FCF_SelectDockFrame(SS_Message[plrname].args[1]);
+			SS_CallOldChatEvent(plrname);
+			TakeScreenshot();
+			UIErrorsFrame:AddMessage("[3] Spammer found: " .. plr, 1.0, 1.0, 0.0, 1.0);
           SS_SpammerFound(name, SS_Message[i].message);
         else
           SS_CallOldChatEvent(plrname);
@@ -571,7 +696,7 @@ function SS_RepAdd(plr, msg)
   	SS_ReportList[realm] = {};
   end
   if (not SS_InList(SS_ReportList[realm], plr)) then
-    local datetime = tostring(date());
+    local datetime = tostring(date("%Y/%m/%d %H:%M:%S"));
     tinsert(SS_ReportList[realm], { player = plr,
                                     message = msg,
                                     time = datetime
@@ -588,7 +713,7 @@ function SS_RepClear()
   if(SS_CharacterBlackList) then
     SS_CharacterBlackList = {};
   end
-  SS_IgnoreClear();
+  --SS_IgnoreClear();
   SS_SpammerAdded = true;	-- Reset the report message
   SS_Msg(0, SS_MSGCLEARED);
 end
@@ -608,8 +733,8 @@ function SS_CheckReport()
 end
 
 -- Show the SpamSentry ticketframe GUI
-function SS_OpenTicket()
-  local text = SS_MakeReport();
+function SS_OpenTicket(text)
+  --local text = SS_MakeReport();
   if not ( HelpFrameOpenTicket.hasTicket ) then
     NewGMTicket(2, text);
     SS_RepClear();
@@ -650,7 +775,7 @@ end
 function SS_ReportBot(plr)
 	local name = UnitName("player");
 	local loc = GetZoneText()..", "..GetSubZoneText();
-	local datetime = tostring(date());
+	local datetime = tostring(date("%Y/%m/%d %H:%M:%S"));
 	getglobal("SpamSentry_ButtonReset"):Hide();
 	getglobal("SpamSentry_Text"):SetText(format(SS_MSGREPORTTEXTBOT, datetime, plr, loc, name));
 	SS_SpammerAdded = true;  -- Makes sure the spam report text is regenerated.
