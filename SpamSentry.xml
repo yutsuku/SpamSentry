@@ -15,20 +15,7 @@
 		</Anchors>
 		<Scripts>
 			<OnClick>
-				local realm = tostring(GetRealmName())
-				local report = ""
-				
-				if (SS_ReportList and SS_ReportList[realm] and getn(SS_ReportList[realm])>0 ) then
-					for i=1, getn(SS_ReportList[realm]), 1 do
-						report = report .. format("%s\n[%s]: '%s'\n\n---\n",SS_ReportList[realm][i].time, SS_ReportList[realm][i].player, SS_ReportList[realm][i].message);
-					end
-				end
-				
-				local frame = HelpFrameOpenTicketText
-				local text = frame:GetText()
-				local newText = text .. "\n\n---\n" .. report
-				
-				frame:SetText(newText)
+				SS_UpdateTicket()
 			</OnClick>
 			<OnShow>
 				local realm = tostring(GetRealmName())

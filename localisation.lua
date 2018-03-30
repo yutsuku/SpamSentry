@@ -16,6 +16,8 @@ if (loc == "deDE") then
 	SS_MSGCLEARED = "|cffff9977Die Ticketliste wurde gel\195\182scht.|r";
 	SS_MSGSHORTHELP = "|cffff0000SpamSentry|r|cffff9977 von Anea (%s)\nGib folgende Befehle ein:\n |r|cffffffff/sentry hilfe | auflisten | l\195\182schen | benachrichtigen\n|r|cffffffff%s|r|cffff9977 Spammer seit Installation. |r|cffffffff%s|r|cffff9977 Spammer auf Ticketliste. Benachrichtigung ist |cffffffff%s|r|cffff9977.|r";
 	SS_MSGREMOVEHELP = "|cffff9977Bitte gib eine g\195\188ltige Indexnummer zum Entfernen an.|r";
+  SS_MSGLINKHELP = "|cffff9977Please give a valid index number to associate with.|r";
+  SS_MSGLINKOK = "|cffff9977Associated '%s' with index %s.|r";
 	
 	-- Channel messages
 	SS_MSGCHANNELADDED = "|cffff9977Kanal |cffffffff%s|r||cffff9977 hinzugef\195\188gt.|r";
@@ -61,6 +63,8 @@ if (loc == "deDE") then
 	SS_GUICLOSE = "Schlie\195\159en";
 
 	-- Commands
+    SS_CMDLINK = "link";
+    SS_CMDDELETE = "delete";
 	SS_CMDREPLIST = "auflisten";
 	SS_CMDREPREPORT = "melden";
 	SS_CMDREPCLEAR = "l\195\182schen";
@@ -98,6 +102,8 @@ elseif (loc == "frFR") then
 	SS_MSGCLEARED = "|cffff9977La liste est maintenant vid\195\169e.|r";
 	SS_MSGSHORTHELP = "|cffff0000SpamSentry|r|cffff9977 par Anea (v. %s)\nTapez: |r|cffffffff\/sentry aide | liste | vider | notifier\n|r|cffffffff%s|r|cffff9977 spammer(s) rapport\195\169(s) aux MJ. |r|cffffffff%s|r|cffff9977 spammer(s) en liste. La notification est |cffffffff%s|r|cffff9977.|r";
 	SS_MSGREMOVEHELP = "|cffff9977Sp\195\169cifiez un index valide \249 effacer.|r";
+  SS_MSGLINKHELP = "|cffff9977Please give a valid index number to associate with.|r";
+  SS_MSGLINKOK = "|cffff9977Associated '%s' with index %s.|r";
 
 	-- Channel messages
 	SS_MSGCHANNELADDED = "|cffff9977Canal |cffffffff%s|r||cffff9977 ajout\195\169.|r";
@@ -143,6 +149,8 @@ elseif (loc == "frFR") then
 	SS_GUICLOSE = "Fermer";
 
 	-- Commands
+	SS_CMDLINK = "link";
+    SS_CMDDELETE = "delete";
 	SS_CMDREPLIST = "liste";
 	SS_CMDREPREPORT = "rapport";
 	SS_CMDREPCLEAR = "vider";
@@ -178,8 +186,10 @@ else
 	SS_MSGFOUND = "|cffff9977* Alert: |r%s|cffff9977 tried to send you %s.";
 	SS_MSGTEXT = "this message";
 	SS_MSGCLEARED = "|cffff9977Reportlist has been cleared.|r";
-	SS_MSGSHORTHELP = "|cffff0000SpamSentry|r|cffff9977 by Anea (%s)\nType: |r|cffffffff/sentry help | list | clear | notify\n|r|cffffffff%s|r|cffff9977 spammer(s) lifetime. |r|cffffffff%s|r|cffff9977 spammer(s) on reportlist. Notification is |cffffffff%s|r|cffff9977.|r";
+	SS_MSGSHORTHELP = "|cffff0000SpamSentry|r|cffff9977 by Anea (%s)\nType: |r|cffffffff/sentry help | list | clear | notify | delete\n|r|cffffffff%s|r|cffff9977 spammer(s) lifetime. |r|cffffffff%s|r|cffff9977 spammer(s) on reportlist. Notification is |cffffffff%s|r|cffff9977.|r";
 	SS_MSGREMOVEHELP = "|cffff9977Please give a valid index number to remove.|r";
+	SS_MSGLINKHELP = "|cffff9977Please give a valid index number to associate with.|r";
+	SS_MSGLINKOK = "|cffff9977Associated '%s' with index %s.|r";
 
 	-- Channel messages
 	SS_MSGCHANNELADDED = "|cffff9977Channel |cffffffff%s|r|cffff9977 added.|r";
@@ -225,6 +235,8 @@ else
 	SS_GUICLOSE = "Close";
 
 	-- Commands
+	SS_CMDLINK = "link";
+	SS_CMDDELETE = "delete";
 	SS_CMDREPLIST = "list";
 	SS_CMDREPREPORT = "report";
 	SS_CMDREPCLEAR = "clear";

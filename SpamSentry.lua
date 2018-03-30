@@ -3,7 +3,7 @@
 --
 --------------------------------------------------------------
 
-local SS_CurrentVersion = 20160924;
+local SS_CurrentVersion = 20161118;
 
 ---------
 -- Blacklist
@@ -13,6 +13,7 @@ local SS_BlackList = {
                 "euro",
                 "pounds",
                 "usd",
+                "u$d",
                 "$%d+.+%d+g",
                 "%d+g.+$%d+",
                 "\226\130\172%d+.+%d+g",
@@ -20,7 +21,13 @@ local SS_BlackList = {
                 "\194\163%d+.+%d+g",
                 "%d+g.+\194\163%d+",
                 "%d+G=%d%$",
+                "%d+G=",
+                "%d+gold=",
 
+                "supply",
+                "gold",
+                "g0ld",
+                "instant",
                 "cheap",
                 "visit",
                 "buy",
@@ -28,7 +35,9 @@ local SS_BlackList = {
                 "http",
                 "www",
                 "[,.]com",
+                "c0m",
 
+                "g4",
                 "gmworker",
                 "itembay",
                 "player123",
@@ -166,7 +175,7 @@ function SS_ChatFrame_OnEvent(event)
     chn = strlower(arg9)
   end
 
-  if (SS_ChannelList and msg and plr) then
+  if (SS_ChannelList and msg and plr and plr ~= "") then
     for index,channel in ipairs(SS_ChannelList) do
       channel = strlower(channel);
       if (channel == SS_WHISPER and strfind(event, "CHAT_MSG_WHISPER")) then
@@ -194,7 +203,7 @@ function SS_ChatFrame_OnEvent(event)
 					didcheck = true;
 				end
       elseif (channel == SS_WORLD and chn ~= nil) then
-        if (strfind(event, "CHAT_MSG_CHANNEL")  and strfind(chn, SS_WORLD)) then
+        if (strfind(event, "CHAT_MSG_CHANNEL")  and strfind(chn, SS_WORLD) and strlen(arg5) == 0) then -- arg5 = second player name when two users are passed for a CHANNEL_NOTICE_USER (E.G. x kicked y)
           SS_IsSpam(msg, plr, event);
           didcheck = true;
         end
@@ -320,7 +329,8 @@ function SS_IsSpam(msg, plr, evt)
       end
     end
   end
-
+  
+  --ChatFrame2:AddMessage(format("[DEBUG] %s: '%s'\n--RAW--\n'%s'\n--RAWEND--", plr, msg, gsub(msg, "\124", "\124\124")))
   SS_AddChatHistory(plr, msg);
   
   -- Check if the player has been queried before. If so, no need to do a who-query again.
@@ -369,7 +379,7 @@ function SS_IsSpam(msg, plr, evt)
         this:ScrollToBottom();
         TakeScreenshot();
 
-        UIErrorsFrame:AddMessage("[1] " .. this:GetName() .. ": Spammer found: " .. plr, 1.0, 1.0, 0.0, 1.0);
+        UIErrorsFrame:AddMessage("Spammer found: " .. plr, 1.0, 1.0, 0.0, 1.0);
         SS_SpammerFound(plr, msg);
       end
     else
@@ -483,11 +493,13 @@ function SS_IsSpam2(event)
   if (plrname == nil or plrname == "") then
     -- If we're still waiting for results from the last query, then assume that the player offline
     if (SS_Message[SS_LastPlayer] and SS_Message[SS_LastPlayer].waiting) then
+      -- Double the current (negative) because player is offline.
+      score = score * 2;
       plrname = SS_LastPlayer;
       score = SS_Message[plrname].score;
     end
   end
-
+  
   -- Suppress message if score is below 0
   if (score < 0) then
     SS_CallOldChatEvent(plrname);
@@ -540,7 +552,7 @@ function SS_IsSpam2(event)
     this_old:ScrollToBottom();
     TakeScreenshot();
     
-    UIErrorsFrame:AddMessage("[2] " .. SS_Message[plrname].args[1]:GetName() .. ": Spammer found: " .. plrname, 1.0, 1.0, 0.0, 1.0);
+    UIErrorsFrame:AddMessage("Spammer found: " .. plrname, 1.0, 1.0, 0.0, 1.0);
     SS_SpammerFound(plrname, SS_Message[plrname].message);
     SS_Message[plrname].waiting=false;
     
@@ -578,7 +590,7 @@ function SS_CheckWhoCooldown()
 			FCF_SelectDockFrame(SS_Message[plrname].args[1]);
 			SS_CallOldChatEvent(plrname);
 			TakeScreenshot();
-			UIErrorsFrame:AddMessage("[3] Spammer found: " .. plr, 1.0, 1.0, 0.0, 1.0);
+			UIErrorsFrame:AddMessage("Spammer found: " .. plr, 1.0, 1.0, 0.0, 1.0);
           SS_SpammerFound(name, SS_Message[i].message);
         else
           SS_CallOldChatEvent(plrname);
@@ -678,7 +690,7 @@ function SS_RepList()
       if (strlen(message)>50) then
         message = strsub(message, 1, 50);
       end
-      SS_Msg(0, format("* %s: |cffffffff%s ...|r" , SS_PlayerLink(character),message));
+      SS_Msg(0, format("[%d] %s: |cffffffff%s ...|r" , i, SS_PlayerLink(character),message));
     end
   else
     SS_Msg(0, SS_MSGREPEMPTY);
@@ -711,7 +723,7 @@ function SS_RepClear()
     SS_ReportList[realm] = {};
   end
   if(SS_CharacterBlackList) then
-    SS_CharacterBlackList = {};
+    --SS_CharacterBlackList = {};
   end
   --SS_IgnoreClear();
   SS_SpammerAdded = true;	-- Reset the report message
@@ -744,6 +756,38 @@ function SS_OpenTicket(text)
   end
 end
 
+function SS_UpdateTicket()
+  local realm = tostring(GetRealmName())
+  local report = ""
+  
+  if (SS_ReportList and SS_ReportList[realm] and getn(SS_ReportList[realm])>0 ) then
+    for i=1, getn(SS_ReportList[realm]), 1 do
+      if SS_ReportList[realm][i].link then
+        report = report .. format(
+          "%s %s\n[%s]: '%s'\n\n---\n",
+          SS_ReportList[realm][i].time, 
+          SS_ReportList[realm][i].link, 
+          SS_ReportList[realm][i].player, 
+          SS_ReportList[realm][i].message
+        );
+      else
+        report = report .. format(
+          "%s\n[%s]: '%s'\n\n---\n",
+          SS_ReportList[realm][i].time, 
+          SS_ReportList[realm][i].player, 
+          SS_ReportList[realm][i].message
+        );
+      end
+    end
+  end
+  
+  local frame = HelpFrameOpenTicketText
+  local text = frame:GetText()
+  local newText = text .. report
+  
+  frame:SetText(newText)
+end
+
 -- Create the report-text
 function SS_MakeReport()
   local realm = tostring(GetRealmName());
@@ -751,7 +795,22 @@ function SS_MakeReport()
   local report = "";
   if (SS_ReportList and SS_ReportList[realm] and getn(SS_ReportList[realm])>0 ) then
     for i=1, getn(SS_ReportList[realm]), 1 do
-      report = report .. format("%s\n[%s]: '%s'\n\n---\n",SS_ReportList[realm][i].time, SS_ReportList[realm][i].player, SS_ReportList[realm][i].message);
+      if SS_ReportList[realm][i].link then
+        report = report .. format(
+          "%s %s\n[%s]: '%s'\n\n---\n",
+          SS_ReportList[realm][i].time, 
+          SS_ReportList[realm][i].link, 
+          SS_ReportList[realm][i].player, 
+          SS_ReportList[realm][i].message
+        );
+      else
+        report = report .. format(
+          "%s\n[%s]: '%s'\n\n---\n",
+          SS_ReportList[realm][i].time, 
+          SS_ReportList[realm][i].player, 
+          SS_ReportList[realm][i].message
+        );
+      end
     end
     text = format(SS_MSGREPORTTEXT, UnitName("player"), report);
   end
@@ -763,12 +822,20 @@ function SS_ResetReport()
 end
 
 function SS_ShowGUI()
-	SpamSentry_ButtonReset:Show();
+  SpamSentry_ButtonReset:Show();
   SpamSentryGUI:Show();
   local t = getglobal("SpamSentry_Text"):GetText();
   if(t==nil or t =="" or SS_SpammerAdded) then
     SS_SpammerAdded = false;
     SS_ResetReport();
+    local realm = tostring(GetRealmName());
+    if (SS_ReportList and SS_ReportList[realm] and getn(SS_ReportList[realm])==0 ) then
+      SpamSentry_ButtonSend:Disable();
+      SpamSentry_ButtonReset:Disable();
+    else
+      SpamSentry_ButtonSend:Enable();
+      SpamSentry_ButtonReset:Enable();
+    end
   end
 end
 
@@ -1016,6 +1083,25 @@ SlashCmdList["SpamSentryCOMMAND"] = function(msg)
     local cmd = string.lower(args[1]);
     if cmd == SS_CMDREPLIST then
       SS_RepList();
+    elseif cmd == SS_CMDDELETE then
+      if args[2]~= nil and SS_ReportList[realm][tonumber(args[2])] then
+        table.remove(SS_ReportList[realm], tonumber(args[2]));
+        SS_RepList();
+      else
+        SS_Msg(0, SS_MSGREMOVEHELP);
+      end
+    elseif cmd == SS_CMDLINK then
+      if args[2]~= nil and SS_ReportList[realm][tonumber(args[2])] then
+        if args[3]~= nil then
+          SS_ReportList[realm][tonumber(args[2])].link = args[3];
+          SS_Msg(0, string.format(SS_MSGLINKOK, args[3], args[2]) );
+        else
+          SS_ReportList[realm][tonumber(args[2])].link = nil;
+          SS_RepList();
+        end
+      else
+        SS_Msg(0, SS_MSGLINKHELP);
+      end
     elseif cmd == SS_CMDREPREPORT then
       SS_ShowGUI();
     elseif cmd == SS_CMDREPCLEAR then
